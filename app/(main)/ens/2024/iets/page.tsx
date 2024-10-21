@@ -27,14 +27,20 @@ const EmptyPage = () => {
             download: true,
             header: true,
             complete: (results) => {
-                console.log(results.data); // Log parsed data
-                setData(results.data as CsvData[]);
+                const parsedData = results.data as CsvData[];
+                
+                // Filter out rows where "Expired Date" is null, undefined, or empty
+                const filteredData = parsedData.filter((row) => row["Expired Date"] && row["Expired Date"].trim() !== '');
+    
+                console.log(filteredData); // Log filtered data
+                setData(filteredData);
             },
             error: (error) => {
                 console.error("Error fetching CSV:", error);
             }
         });
     }, []);
+    
 
 
     const clearFilter = () => {
@@ -63,20 +69,18 @@ const EmptyPage = () => {
     // Custom body template for the "Tank Status" column using PrimeReact Badge
     const tankStatusBodyTemplate = (rowData: CsvData) => {
         const expiredDate = rowData["Expired Date"];
-
-        // Function to convert the expired date string to a Date object
-
+    
         if (!expiredDate) {
-            return <Badge value="N/A" severity="info" />; // Handle undefined expired date
+            return null; // Handle undefined expired date
         }
-
+    
         const expirationDate = convertToDate(expiredDate);
         const currentDate = new Date();
-
+    
         let status: string;
         let severity: 'success' | 'warning' | 'danger' | 'info' | 'help' | undefined;
-
-        if (expirationDate < currentDate) {
+    
+        if (!expirationDate || expirationDate < currentDate) {
             status = "Expired";
             severity = 'danger';
         } else {
@@ -84,27 +88,28 @@ const EmptyPage = () => {
             severity = 'success';
         }
         rowData["Tank Status"] = status;
-
-        return <Badge value={status + expirationDate} severity={severity} />;
+        return <Badge value={status} severity={severity} />;
     };
 
-    const convertToDate = (dateStr: string): Date => {
-        const [day, month, year] = dateStr.split('-');
-        const monthMap: { [key: string]: number } = {
-            'Jan': 0,
-            'Feb': 1,
-            'Mar': 2,
-            'Apr': 3,
-            'May': 4,
-            'Jun': 5,
-            'Jul': 6,
-            'Aug': 7,
-            'Sep': 8,
-            'Oct': 9,
-            'Nov': 10,
-            'Dec': 11,
-        };
-        return new Date(Number(year), monthMap[month], Number(day));
+    const convertToDate = (dateStr: string): Date | null => {
+        if (!dateStr || typeof dateStr !== 'string' || !dateStr.includes('/')) {
+            return null; // Return null if the date string is invalid
+        }
+        const [year, month, day] = dateStr.split('/');
+        return new Date(Number(year), Number(month) - 1, Number(day));
+    };
+
+    const formatDate = (date: Date): string => {
+        const day = String(date.getDate()).padStart(2, '0'); // Get day and add leading zero if needed
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so we add 1
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`; // Return in DD/MM/YYYY format
+    };
+
+
+    const dateBodyTemplate = (rowData: CsvData) => {
+        const date = convertToDate(rowData["Expired Date"]);
+        return date ? formatDate(date) : null;
     };
 
 
@@ -135,7 +140,7 @@ const EmptyPage = () => {
                         >
                             <Column field="No." header="No." style={{ minWidth: '12rem' }} sortable />
                             <Column field="Serial No." header="Serial No." style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Expired Date" header="Expired Date" style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Expired Date" header="Expired Date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} sortable />
                             <Column field="Location" header="Location" style={{ minWidth: '12rem' }} sortable />
                             <Column field="Type" header="Type" style={{ minWidth: '12rem' }} sortable />
                             <Column field="Tank Status" header="Tank Status" style={{ minWidth: '12rem' }} body={tankStatusBodyTemplate} sortable />
