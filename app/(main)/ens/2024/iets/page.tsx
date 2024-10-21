@@ -18,52 +18,22 @@ interface CsvData {
     "Tank Status": string;
 }
 
-const EmptyPage = () => {
-    const [blockAData, setBlockAData] = useState<CsvData[]>([]);
-    const [blockBData, setBlockBData] = useState<CsvData[]>([]);
-    const [blockA1Data, setBlockA1Data] = useState<CsvData[]>([]);
+const MonitoringPage = () => {
+    const [data, setdata] = useState<CsvData[]>([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
 
     useEffect(() => {
         // Fetch Block A CSV
-        Papa.parse('/blockA.csv', {
+        Papa.parse('/Fire-Extinguisher.csv', {
             download: true,
             header: true,
             complete: (results) => {
                 const parsedData = results.data as CsvData[];
                 const filteredData = parsedData.filter((row) => row["Expired Date"] && row["Expired Date"].trim() !== '');
-                setBlockAData(filteredData);
+                setdata(filteredData);
             },
             error: (error) => {
                 console.error("Error fetching Block A CSV:", error);
-            }
-        });
-
-        // Fetch Block A1 CSV
-        Papa.parse('/blockA1.csv', {
-            download: true,
-            header: true,
-            complete: (results) => {
-                const parsedData = results.data as CsvData[];
-                const filteredData = parsedData.filter((row) => row["Expired Date"] && row["Expired Date"].trim() !== '');
-                setBlockA1Data(filteredData);
-            },
-            error: (error) => {
-                console.error("Error fetching Block B CSV:", error);
-            }
-        });
-
-        // Fetch Block B CSV
-        Papa.parse('/blockB.csv', {
-            download: true,
-            header: true,
-            complete: (results) => {
-                const parsedData = results.data as CsvData[];
-                const filteredData = parsedData.filter((row) => row["Expired Date"] && row["Expired Date"].trim() !== '');
-                setBlockBData(filteredData);
-            },
-            error: (error) => {
-                console.error("Error fetching Block B CSV:", error);
             }
         });
     }, []);
@@ -145,75 +115,15 @@ const EmptyPage = () => {
                 </div>
             </div>
             
-            {/* Block A DataTable */}
+            {/* Fire Extinguisher DataTable */}
             <div className="col-12">
                 <div className="card">
-                    <h5>Block A</h5>
-                    {blockAData.length === 0 ? (
-                        <p>No data available for Block A.</p>
+                    <h5>Fire Extinguisher</h5>
+                    {data.length === 0 ? (
+                        <p>No data available</p>
                     ) : (
                         <DataTable
-                            value={blockAData}
-                            paginator
-                            className="p-datatable-gridlines"
-                            showGridlines
-                            rows={10}
-                            dataKey="No."
-                            filterDisplay="menu"
-                            emptyMessage="No data found."
-                            header={header}
-                            globalFilter={globalFilterValue}
-                        >
-                            <Column field="No." header="No." style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Serial No." header="Serial No." style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Expired Date" header="Expired Date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} sortable />
-                            <Column field="Location" header="Location" style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Type" header="Type" style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Tank Status" header="Tank Status" style={{ minWidth: '12rem' }} body={tankStatusBodyTemplate} sortable />
-                        </DataTable>
-                    )}
-                </div>
-            </div>
-
-            {/* Block A1 DataTable */}
-            <div className="col-12">
-                <div className="card">
-                    <h5>Block A1</h5>
-                    {blockAData.length === 0 ? (
-                        <p>No data available for Block A.</p>
-                    ) : (
-                        <DataTable
-                            value={blockA1Data}
-                            paginator
-                            className="p-datatable-gridlines"
-                            showGridlines
-                            rows={10}
-                            dataKey="No."
-                            filterDisplay="menu"
-                            emptyMessage="No data found."
-                            header={header}
-                            globalFilter={globalFilterValue}
-                        >
-                            <Column field="No." header="No." style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Serial No." header="Serial No." style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Expired Date" header="Expired Date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} sortable />
-                            <Column field="Location" header="Location" style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Type" header="Type" style={{ minWidth: '12rem' }} sortable />
-                            <Column field="Tank Status" header="Tank Status" style={{ minWidth: '12rem' }} body={tankStatusBodyTemplate} sortable />
-                        </DataTable>
-                    )}
-                </div>
-            </div>
-
-            {/* Block B DataTable */}
-            <div className="col-12">
-                <div className="card">
-                    <h5>Block B</h5>
-                    {blockBData.length === 0 ? (
-                        <p>No data available for Block B.</p>
-                    ) : (
-                        <DataTable
-                            value={blockBData}
+                            value={data}
                             paginator
                             className="p-datatable-gridlines"
                             showGridlines
@@ -238,4 +148,4 @@ const EmptyPage = () => {
     );
 };
 
-export default EmptyPage;
+export default MonitoringPage;
