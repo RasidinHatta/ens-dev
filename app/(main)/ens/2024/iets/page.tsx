@@ -23,7 +23,7 @@ const EmptyPage = () => {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
 
     useEffect(() => {
-        Papa.parse('/data.csv', {
+        Papa.parse('/blockA.csv', {
             download: true,
             header: true,
             complete: (results) => {
