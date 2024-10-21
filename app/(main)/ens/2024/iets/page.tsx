@@ -123,6 +123,7 @@ const EmptyPage = () => {
             </div>
             <div className="col-12">
                 <div className="card">
+                    <h5>Block A</h5>
                     {data.length === 0 ? (
                         <p>No data available.</p>
                     ) : (
