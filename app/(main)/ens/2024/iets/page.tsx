@@ -19,29 +19,54 @@ interface CsvData {
 }
 
 const EmptyPage = () => {
-    const [data, setData] = useState<CsvData[]>([]);
+    const [blockAData, setBlockAData] = useState<CsvData[]>([]);
+    const [blockBData, setBlockBData] = useState<CsvData[]>([]);
+    const [blockA1Data, setBlockA1Data] = useState<CsvData[]>([]);
     const [globalFilterValue, setGlobalFilterValue] = useState('');
 
     useEffect(() => {
+        // Fetch Block A CSV
         Papa.parse('/blockA.csv', {
             download: true,
             header: true,
             complete: (results) => {
                 const parsedData = results.data as CsvData[];
-                
-                // Filter out rows where "Expired Date" is null, undefined, or empty
                 const filteredData = parsedData.filter((row) => row["Expired Date"] && row["Expired Date"].trim() !== '');
-    
-                console.log(filteredData); // Log filtered data
-                setData(filteredData);
+                setBlockAData(filteredData);
             },
             error: (error) => {
-                console.error("Error fetching CSV:", error);
+                console.error("Error fetching Block A CSV:", error);
+            }
+        });
+
+        // Fetch Block A1 CSV
+        Papa.parse('/blockA1.csv', {
+            download: true,
+            header: true,
+            complete: (results) => {
+                const parsedData = results.data as CsvData[];
+                const filteredData = parsedData.filter((row) => row["Expired Date"] && row["Expired Date"].trim() !== '');
+                setBlockA1Data(filteredData);
+            },
+            error: (error) => {
+                console.error("Error fetching Block B CSV:", error);
+            }
+        });
+
+        // Fetch Block B CSV
+        Papa.parse('/blockB.csv', {
+            download: true,
+            header: true,
+            complete: (results) => {
+                const parsedData = results.data as CsvData[];
+                const filteredData = parsedData.filter((row) => row["Expired Date"] && row["Expired Date"].trim() !== '');
+                setBlockBData(filteredData);
+            },
+            error: (error) => {
+                console.error("Error fetching Block B CSV:", error);
             }
         });
     }, []);
-    
-
 
     const clearFilter = () => {
         setGlobalFilterValue('');
@@ -69,17 +94,17 @@ const EmptyPage = () => {
     // Custom body template for the "Tank Status" column using PrimeReact Badge
     const tankStatusBodyTemplate = (rowData: CsvData) => {
         const expiredDate = rowData["Expired Date"];
-    
+
         if (!expiredDate) {
             return null; // Handle undefined expired date
         }
-    
+
         const expirationDate = convertToDate(expiredDate);
         const currentDate = new Date();
-    
+
         let status: string;
         let severity: 'success' | 'warning' | 'danger' | 'info' | 'help' | undefined;
-    
+
         if (!expirationDate || expirationDate < currentDate) {
             status = "Expired";
             severity = 'danger';
@@ -106,12 +131,10 @@ const EmptyPage = () => {
         return `${day}/${month}/${year}`; // Return in DD/MM/YYYY format
     };
 
-
     const dateBodyTemplate = (rowData: CsvData) => {
         const date = convertToDate(rowData["Expired Date"]);
         return date ? formatDate(date) : null;
     };
-
 
     return (
         <div className="grid">
@@ -121,23 +144,85 @@ const EmptyPage = () => {
                     <p>Monitoring Page IETS/WWTS</p>
                 </div>
             </div>
+            
+            {/* Block A DataTable */}
             <div className="col-12">
                 <div className="card">
                     <h5>Block A</h5>
-                    {data.length === 0 ? (
-                        <p>No data available.</p>
+                    {blockAData.length === 0 ? (
+                        <p>No data available for Block A.</p>
                     ) : (
                         <DataTable
-                            value={data}
+                            value={blockAData}
                             paginator
                             className="p-datatable-gridlines"
                             showGridlines
                             rows={10}
-                            dataKey="No." // Adjust according to your unique identifier
+                            dataKey="No."
                             filterDisplay="menu"
                             emptyMessage="No data found."
                             header={header}
-                            globalFilter={globalFilterValue} // Apply global filter
+                            globalFilter={globalFilterValue}
+                        >
+                            <Column field="No." header="No." style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Serial No." header="Serial No." style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Expired Date" header="Expired Date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} sortable />
+                            <Column field="Location" header="Location" style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Type" header="Type" style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Tank Status" header="Tank Status" style={{ minWidth: '12rem' }} body={tankStatusBodyTemplate} sortable />
+                        </DataTable>
+                    )}
+                </div>
+            </div>
+
+            {/* Block A1 DataTable */}
+            <div className="col-12">
+                <div className="card">
+                    <h5>Block A1</h5>
+                    {blockAData.length === 0 ? (
+                        <p>No data available for Block A.</p>
+                    ) : (
+                        <DataTable
+                            value={blockA1Data}
+                            paginator
+                            className="p-datatable-gridlines"
+                            showGridlines
+                            rows={10}
+                            dataKey="No."
+                            filterDisplay="menu"
+                            emptyMessage="No data found."
+                            header={header}
+                            globalFilter={globalFilterValue}
+                        >
+                            <Column field="No." header="No." style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Serial No." header="Serial No." style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Expired Date" header="Expired Date" style={{ minWidth: '12rem' }} body={dateBodyTemplate} sortable />
+                            <Column field="Location" header="Location" style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Type" header="Type" style={{ minWidth: '12rem' }} sortable />
+                            <Column field="Tank Status" header="Tank Status" style={{ minWidth: '12rem' }} body={tankStatusBodyTemplate} sortable />
+                        </DataTable>
+                    )}
+                </div>
+            </div>
+
+            {/* Block B DataTable */}
+            <div className="col-12">
+                <div className="card">
+                    <h5>Block B</h5>
+                    {blockBData.length === 0 ? (
+                        <p>No data available for Block B.</p>
+                    ) : (
+                        <DataTable
+                            value={blockBData}
+                            paginator
+                            className="p-datatable-gridlines"
+                            showGridlines
+                            rows={10}
+                            dataKey="No."
+                            filterDisplay="menu"
+                            emptyMessage="No data found."
+                            header={header}
+                            globalFilter={globalFilterValue}
                         >
                             <Column field="No." header="No." style={{ minWidth: '12rem' }} sortable />
                             <Column field="Serial No." header="Serial No." style={{ minWidth: '12rem' }} sortable />
