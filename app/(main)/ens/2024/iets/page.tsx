@@ -4,7 +4,7 @@ import { CustomerService } from '../../../../../demo/service/CustomerService';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
-import { DataTable, DataTableExpandedRows, DataTableFilterMeta } from 'primereact/datatable';
+import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
 import { classNames } from 'primereact/utils';
@@ -131,15 +131,6 @@ const EmptyPage = () => {
         );
     };
 
-    const representativesItemTemplate = (option: any) => {
-        return (
-            <div className="p-multiselect-representative-option">
-                <img alt={option.name} src={`/demo/images/avatar/${option.image}`} width={32} style={{ verticalAlign: 'middle' }} />
-                <span style={{ marginLeft: '.5em', verticalAlign: 'middle' }}>{option.name}</span>
-            </div>
-        );
-    };
-
     const dateBodyTemplate = (rowData: Demo.Customer) => {
         return formatDate(rowData.date);
     };
@@ -150,10 +141,6 @@ const EmptyPage = () => {
 
     const statusBodyTemplate = (rowData: Demo.Customer) => {
         return <span className={`customer-badge status-${rowData.status}`}>{rowData.status}</span>;
-    };
-
-    const statusItemTemplate = (option: any) => {
-        return <span className={`customer-badge status-${option}`}>{option}</span>;
     };
 
     const activityBodyTemplate = (rowData: Demo.Customer) => {
